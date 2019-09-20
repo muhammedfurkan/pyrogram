@@ -49,8 +49,6 @@ class Photo(Object):
             Available thumbnails of this photo.
     """
 
-    __slots__ = ["file_id", "width", "height", "file_size", "date", "thumbs"]
-
     def __init__(
         self,
         *,
@@ -79,10 +77,10 @@ class Photo(Object):
             return Photo(
                 file_id=encode(
                     pack(
-                        "<iiqqc",
-                        2, photo.dc_id,
-                        photo.id, photo.access_hash,
-                        big.type.encode()
+                        "<iiqqqiiii",
+                        2, photo.dc_id, photo.id, photo.access_hash,
+                        big.location.volume_id, 1, 2, ord(big.type),
+                        big.location.local_id
                     )
                 ),
                 width=big.w,

@@ -16,17 +16,35 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from io import BytesIO
+from pyrogram.api import types
+from ..object import Object
 
-from ..tl_object import TLObject
 
+class Restriction(Object):
+    """A restriction applied to bots or chats.
 
-class Null(TLObject):
-    ID = 0x56730bcc
+    Parameters:
+        platform (``str``):
+            The platform the restriction is applied to, e.g. "ios", "android"
+
+        reason (``str``):
+            The restriction reason, e.g. "porn", "copyright".
+
+        text (``str``):
+            The restriction text.
+    """
+
+    def __init__(self, *, platform: str, reason: str, text: str):
+        super().__init__(None)
+
+        self.platform = platform
+        self.reason = reason
+        self.text = text
 
     @staticmethod
-    def read(b: BytesIO, *args) -> None:
-        return None
-
-    def __new__(cls) -> bytes:
-        return cls.ID.to_bytes(4, "little")
+    def _parse(restriction: types.RestrictionReason) -> "Restriction":
+        return Restriction(
+            platform=restriction.platform,
+            reason=restriction.reason,
+            text=restriction.text
+        )

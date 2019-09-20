@@ -17,10 +17,12 @@
 # along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import html
+from typing import List
 
 import pyrogram
 from pyrogram.api import types
 from .chat_photo import ChatPhoto
+from .restriction import Restriction
 from ..object import Object
 from ..update import Update
 
@@ -101,16 +103,10 @@ class User(Object, Update):
         photo (:obj:`ChatPhoto <pyrogram.ChatPhoto>`, *optional*):
             User's or bot's current profile photo. Suitable for downloads only.
 
-        restriction_reason (``str``, *optional*):
-            The reason why this bot might be unavailable to some users.
+        restrictions (List of :obj:`Restriction`, *optional*):
+            The list of reasons why this bot might be unavailable to some users.
             This field is available only in case *is_restricted* is True.
     """
-
-    __slots__ = [
-        "id", "is_self", "is_contact", "is_mutual_contact", "is_deleted", "is_bot", "is_verified", "is_restricted",
-        "is_scam", "is_support", "first_name", "last_name", "status", "last_online_date", "next_offline_date",
-        "username", "language_code", "dc_id", "phone_number", "photo", "restriction_reason"
-    ]
 
     def __init__(
         self,
@@ -136,7 +132,7 @@ class User(Object, Update):
         dc_id: int = None,
         phone_number: str = None,
         photo: ChatPhoto = None,
-        restriction_reason: str = None
+        restrictions: List[Restriction] = None
     ):
         super().__init__(client)
 
@@ -160,7 +156,7 @@ class User(Object, Update):
         self.dc_id = dc_id
         self.phone_number = phone_number
         self.photo = photo
-        self.restriction_reason = restriction_reason
+        self.restrictions = restrictions
 
     def __format__(self, format_spec):
         if format_spec == "mention":
@@ -191,8 +187,8 @@ class User(Object, Update):
             language_code=user.lang_code,
             dc_id=getattr(user.photo, "dc_id", None),
             phone_number=user.phone,
-            photo=ChatPhoto._parse(client, user.photo, user.id),
-            restriction_reason=user.restriction_reason,
+            photo=ChatPhoto._parse(client, user.photo, user.id, user.access_hash),
+            restrictions=pyrogram.List([Restriction._parse(r) for r in user.restriction_reason]) or None,
             client=client
         )
 
@@ -285,21 +281,21 @@ class User(Object, Update):
 
     def block(self):
         """Bound method *block* of :obj:`User`.
-        
+
         Use as a shortcut for:
-        
+
         .. code-block:: python
-        
+
             client.block_user(123456789)
-            
+
         Example:
             .. code-block:: python
-            
+
                 user.block()
-                
+
         Returns:
             True on success.
-            
+
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
@@ -308,23 +304,46 @@ class User(Object, Update):
 
     def unblock(self):
         """Bound method *unblock* of :obj:`User`.
-        
+
         Use as a shortcut for:
-        
+
         .. code-block:: python
-        
+
             client.unblock_user(123456789)
-            
+
         Example:
             .. code-block:: python
-            
+
                 user.unblock()
-                
+
         Returns:
             True on success.
-            
+
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
 
         return self._client.unblock_user(self.id)
+
+    def get_common_chats(self):
+        """Bound method *get_common_chats* of :obj:`User`.
+
+        Use as a shortcut for:
+
+        .. code-block:: python
+
+            client.get_common_chats(123456789)
+
+        Example:
+            .. code-block:: python
+
+                user.get_common_chats()
+
+        Returns:
+            True on success.
+
+        Raises:
+            RPCError: In case of a Telegram RPC error.
+        """
+
+        return self._client.get_common_chats(self.id)

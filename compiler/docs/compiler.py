@@ -128,10 +128,10 @@ def pyrogram_api():
         utilities="""
         Utilities
             start
-            stop
-            restart
             idle
+            stop
             run
+            restart
             add_handler
             remove_handler
             stop_transmission
@@ -146,7 +146,6 @@ def pyrogram_api():
             send_audio
             send_document
             send_sticker
-            send_animated_sticker
             send_video
             send_animation
             send_voice
@@ -185,11 +184,13 @@ def pyrogram_api():
             unban_chat_member
             restrict_chat_member
             promote_chat_member
+            set_administrator_title
             export_chat_invite_link
             set_chat_photo
             delete_chat_photo
             set_chat_title
             set_chat_description
+            set_chat_permissions
             pin_chat_message
             unpin_chat_message
             get_chat
@@ -200,8 +201,9 @@ def pyrogram_api():
             get_dialogs
             iter_dialogs
             get_dialogs_count
-            restrict_chat
             update_chat_username
+            get_common_chats
+            get_nearby_chats
             archive_chats
             unarchive_chats
             add_chat_members
@@ -248,6 +250,23 @@ def pyrogram_api():
             set_game_score
             get_game_high_scores
         """,
+        authorization="""
+        Authorization
+            connect
+            disconnect
+            initialize
+            terminate
+            send_code
+            resend_code
+            sign_in
+            sign_up
+            get_password_hint
+            check_password
+            send_recovery_code
+            recover_password
+            accept_terms_of_service
+            log_out
+        """,
         advanced="""
         Advanced
             send
@@ -292,6 +311,7 @@ def pyrogram_api():
             ChatMember
             ChatPermissions
             Dialog
+            Restriction
         """,
         messages_media="""
         Messages & Media
@@ -348,6 +368,11 @@ def pyrogram_api():
         InputMessageContent
             InputMessageContent
             InputTextMessageContent
+        """,
+        authorization="""
+        Authorization
+            SentCode
+            TermsOfService
         """
     )
 

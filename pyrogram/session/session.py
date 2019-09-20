@@ -34,7 +34,6 @@ from pyrogram.api.core import Message, TLObject, MsgContainer, Long, FutureSalt,
 from pyrogram.connection import Connection
 from pyrogram.crypto import AES, KDF
 from pyrogram.errors import RPCError, InternalServerError, AuthKeyDuplicated
-
 from .internals import MsgId, MsgFactory
 
 log = logging.getLogger(__name__)
@@ -118,7 +117,7 @@ class Session:
         while True:
             self.connection = Connection(
                 self.dc_id,
-                self.client.storage.test_mode,
+                self.client.storage.test_mode(),
                 self.client.ipv6,
                 self.client.proxy
             )
@@ -440,9 +439,9 @@ class Session:
                 raise e from None
 
             (log.warning if retries < 2 else log.info)(
-                "{}: {} Retrying {}".format(
+                "[{}] Retrying {} due to {}".format(
                     Session.MAX_RETRIES - retries + 1,
-                    datetime.now(), type(data)))
+                    data.QUALNAME, e))
 
             time.sleep(0.5)
             return self.send(data, retries - 1, timeout)

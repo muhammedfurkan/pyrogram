@@ -16,4 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from .typing import typing
+from .terms_of_service import TermsOfService
+from .sent_code import SentCode
+
+__all__ = ["TermsOfService", "SentCode"]

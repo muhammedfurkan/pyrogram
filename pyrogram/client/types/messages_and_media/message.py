@@ -31,7 +31,8 @@ from ..object import Object
 from ..update import Update
 from ..user_and_chats.chat import Chat
 from ..user_and_chats.user import User
-from ...parser import utils, Parser
+from ...ext import utils
+from ...parser import utils as parser_utils, Parser
 
 
 class Str(str):
@@ -54,7 +55,7 @@ class Str(str):
         return Parser.unparse(self, self.entities, True)
 
     def __getitem__(self, item):
-        return utils.remove_surrogates(utils.add_surrogates(self)[item])
+        return parser_utils.remove_surrogates(parser_utils.add_surrogates(self)[item])
 
 
 class Message(Object, Update):
@@ -263,17 +264,6 @@ class Message(Object, Update):
 
     # TODO: Add game missing field. Also invoice, successful_payment, connected_website
 
-    __slots__ = [
-        "message_id", "date", "chat", "from_user", "forward_from", "forward_sender_name", "forward_from_chat",
-        "forward_from_message_id", "forward_signature", "forward_date", "reply_to_message", "mentioned", "empty",
-        "service", "media", "edit_date", "media_group_id", "author_signature", "text", "entities", "caption_entities",
-        "audio", "document", "photo", "sticker", "animation", "game", "video", "voice", "video_note", "caption",
-        "contact", "location", "venue", "web_page", "poll", "new_chat_members", "left_chat_member", "new_chat_title",
-        "new_chat_photo", "delete_chat_photo", "group_chat_created", "supergroup_chat_created", "channel_chat_created",
-        "migrate_to_chat_id", "migrate_from_chat_id", "pinned_message", "game_high_score", "views", "via_bot",
-        "outgoing", "matches", "command", "reply_markup"
-    ]
-
     def __init__(
         self,
         *,
@@ -292,6 +282,8 @@ class Message(Object, Update):
         mentioned: bool = None,
         empty: bool = None,
         service: bool = None,
+        scheduled: bool = None,
+        from_scheduled: bool = None,
         media: bool = None,
         edit_date: int = None,
         media_group_id: str = None,
@@ -354,6 +346,8 @@ class Message(Object, Update):
         self.mentioned = mentioned
         self.empty = empty
         self.service = service
+        self.scheduled = scheduled
+        self.from_scheduled = from_scheduled
         self.media = media
         self.edit_date = edit_date
         self.media_group_id = media_group_id
@@ -397,7 +391,7 @@ class Message(Object, Update):
 
     @staticmethod
     def _parse(client, message: types.Message or types.MessageService or types.MessageEmpty, users: dict, chats: dict,
-               replies: int = 1):
+               is_scheduled: bool = False, replies: int = 1):
         if isinstance(message, types.MessageEmpty):
             return Message(message_id=message.id, empty=True, client=client)
 
@@ -446,7 +440,7 @@ class Message(Object, Update):
                 new_chat_title=new_chat_title,
                 new_chat_photo=new_chat_photo,
                 delete_chat_photo=delete_chat_photo,
-                migrate_to_chat_id=int("-100" + str(migrate_to_chat_id)) if migrate_to_chat_id else None,
+                migrate_to_chat_id=utils.get_channel_id(migrate_to_chat_id) if migrate_to_chat_id else None,
                 migrate_from_chat_id=-migrate_from_chat_id if migrate_from_chat_id else None,
                 group_chat_created=group_chat_created,
                 channel_chat_created=channel_chat_created,
@@ -630,6 +624,8 @@ class Message(Object, Update):
                 forward_signature=forward_signature,
                 forward_date=forward_date,
                 mentioned=message.mentioned,
+                scheduled=is_scheduled,
+                from_scheduled=message.from_scheduled,
                 media=bool(media) or None,
                 edit_date=message.edit_date,
                 media_group_id=message.grouped_id,
@@ -2753,7 +2749,7 @@ class Message(Object, Update):
             revoke=revoke
         )
 
-    def click(self, x: int or str, y: int = 0, quote: bool = None, timeout: int = 10):
+    def click(self, x: int or str = 0, y: int = None, quote: bool = None, timeout: int = 10):
         """Bound method *click* of :obj:`Message`.
 
         Use as a shortcut for clicking a button attached to the message instead of:

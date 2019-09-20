@@ -58,7 +58,7 @@ html_show_copyright = False
 html_theme_options = {
     "canonical_url": "https://docs.pyrogram.org/",
     "collapse_navigation": True,
-    "sticky_navigation": True,
+    "sticky_navigation": False,
     "logo_only": True,
     "display_version": True,
     "style_external_links": True
@@ -73,8 +73,8 @@ latex_logo = "_images/pyrogram.png"
 latex_elements = {
     "pointsize": "12pt",
     "fontpkg": r"""
-        \setmainfont{Noto Sans}
-        \setsansfont{Roboto Slab}
+        \setmainfont{Open Sans}
+        \setsansfont{Bitter}
         \setmonofont{Ubuntu Mono}
         """
 }
